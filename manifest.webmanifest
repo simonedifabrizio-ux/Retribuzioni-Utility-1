@@ -1,0 +1,27 @@
+{
+  "name": "Retribuzioni Utility",
+  "short_name": "Retribuzioni",
+  "description": "Utility HR per consultare RAL e netto per provincia",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e7e3da",
+  "theme_color": "#c44054",
+  "orientation": "any",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
