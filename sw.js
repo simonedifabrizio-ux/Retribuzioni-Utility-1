@@ -1,4 +1,4 @@
-const CACHE = 'retribuzioni-utility-v2';
+const CACHE = 'retribuzioni-utility-v3';
 const APP_FILES = [
   './',
   './index.html',

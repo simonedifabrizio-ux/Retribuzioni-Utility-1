@@ -23,26 +23,94 @@
   <script>
     const frame = document.getElementById('app-frame');
     const mobileStyles = `
+      .mobile-selection-note { display: none; }
       @media (max-width: 700px) {
         html, body { overflow-x: hidden !important; }
-        [style*="padding:28px 24px 64px"] { padding: 18px 12px 40px !important; align-items: stretch !important; }
-        [style*="max-width:1180px"] { max-width: 100% !important; }
-        header[style] { align-items: flex-start !important; gap: 12px !important; }
-        h1[style] { font-size: 23px !important; }
+        .mobile-page { padding: 14px 12px 36px !important; align-items: stretch !important; }
+        .mobile-content { width: 100% !important; max-width: 100% !important; }
+        .mobile-header { display: block !important; padding-bottom: 12px !important; }
+        .mobile-header > div:last-child { display: none !important; }
+        h1[style] { font-size: 22px !important; line-height: 1.12 !important; }
         select { min-width: 0 !important; width: 100% !important; font-size: 16px !important; }
-        [style*="grid-template-columns:1.6fr 1fr 1.2fr"],
-        [style*="grid-template-columns:1.6fr 1fr"],
-        [style*="grid-template-columns:1.1fr 1fr"],
-        [style*="grid-template-columns:1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
-        [style*="padding:22px 26px"],
-        [style*="padding:22px 24px"] { padding: 18px !important; }
-        [style*="font-size:46px"] { font-size: 38px !important; }
-        [style*="grid-template-columns:minmax(94px,1.05fr)"] { min-width: 780px !important; }
-        [style*="border:1px solid #d8d4ca"][style*="overflow:hidden"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
-        [style*="grid-template-columns:1fr 1.2fr 1fr"] { min-width: 520px !important; }
-        [style*="border:1px solid #e0ddd4"][style*="overflow:hidden"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+        .mobile-stack { grid-template-columns: 1fr !important; gap: 10px !important; }
+        [style*="padding: 22px 26px"],
+        [style*="padding: 22px 24px"] { padding: 16px !important; }
+        [style*="font-size: 46px"] { font-size: 36px !important; }
+        .mobile-matrix-toolbar,
+        .mobile-matrix-wrap,
+        .mobile-matrix-footnote { display: none !important; }
+        .mobile-selection-note {
+          display: block !important;
+          margin: 18px 0 0;
+          padding: 12px 14px;
+          border: 1px solid #d8d4ca;
+          border-radius: 8px;
+          background: #fdfcf9;
+          color: #5b635e;
+          font-size: 13px;
+          line-height: 1.45;
+        }
+        .mobile-netti-table,
+        [style*="border: 1px solid rgb(224, 221, 212)"][style*="overflow: hidden"] { overflow-x: hidden !important; }
+        .mobile-netti-table [style*="grid-template-columns: 1fr 1.2fr 1fr"],
+        [style*="grid-template-columns: 1fr 1.2fr 1fr"] {
+          grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr) minmax(0,1fr) !important;
+          min-width: 0 !important;
+        }
+        .mobile-netti-table [style*="padding: 11px 18px"],
+        [style*="grid-template-columns: 1fr 1.2fr 1fr"] [style*="padding: 11px 18px"] {
+          padding: 10px 6px !important;
+          font-size: 12px !important;
+        }
+        .mobile-netti-table [style*="letter-spacing: 0.08em"] {
+          font-size: 9px !important;
+          letter-spacing: .03em !important;
+        }
       }
     `;
+
+    function enhanceMobileLayout(doc) {
+      const page = doc.querySelector('[style*="padding: 28px 24px 64px"]');
+      const content = doc.querySelector('[style*="max-width: 1180px"]');
+      const header = doc.querySelector('header');
+      page?.classList.add('mobile-page');
+      content?.classList.add('mobile-content');
+      header?.classList.add('mobile-header');
+
+      doc.querySelectorAll(
+        '[style*="grid-template-columns: 1.6fr 1fr 1.2fr"], ' +
+        '[style*="grid-template-columns: 1.6fr 1fr"], ' +
+        '[style*="grid-template-columns: 1.1fr 1fr"], ' +
+        '[style*="grid-template-columns: 1fr 1fr 1fr"]'
+      ).forEach(element => element.classList.add('mobile-stack'));
+
+      const matrix = doc.querySelector('[style*="grid-template-columns: minmax(94px, 1.05fr)"]');
+      if (matrix) {
+        const wrapper = matrix.parentElement;
+        const toolbar = wrapper?.previousElementSibling;
+        const footnote = wrapper?.nextElementSibling;
+        wrapper?.classList.add('mobile-matrix-wrap');
+        toolbar?.classList.add('mobile-matrix-toolbar');
+        footnote?.classList.add('mobile-matrix-footnote');
+        if (toolbar && !doc.querySelector('.mobile-selection-note')) {
+          const note = doc.createElement('div');
+          note.className = 'mobile-selection-note';
+          note.textContent = 'Vista verticale: scegli Provincia, Livello e Orario nei menu sopra. Il risultato aggiornato appare subito nelle schede Netto mensile e RAL.';
+          toolbar.parentElement.insertBefore(note, toolbar);
+        }
+      }
+
+      const nettiHeader = doc.querySelector('[style*="grid-template-columns: 1fr 1.2fr 1fr"]');
+      nettiHeader?.parentElement?.classList.add('mobile-netti-table');
+      doc.documentElement.dataset.mobileReady = 'true';
+    }
+
+    function installMobileObserver(doc) {
+      if (!doc.body || doc.body.dataset.mobileObserver === 'true') return;
+      doc.body.dataset.mobileObserver = 'true';
+      const observer = new frame.contentWindow.MutationObserver(() => enhanceMobileLayout(doc));
+      observer.observe(doc.body, { childList: true, subtree: true });
+    }
 
     frame.addEventListener('load', () => {
       let attempts = 0;
@@ -54,7 +122,11 @@
           style.textContent = mobileStyles;
           doc.head.appendChild(style);
         }
-        if (++attempts < 50) setTimeout(applyMobileStyles, 100);
+        if (doc?.body) {
+          installMobileObserver(doc);
+          enhanceMobileLayout(doc);
+        }
+        if (++attempts < 1800) setTimeout(applyMobileStyles, 100);
       };
       applyMobileStyles();
     });
