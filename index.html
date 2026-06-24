@@ -19,8 +19,46 @@
   </style>
 </head>
 <body>
-  <iframe src="./Retribuzioni%20Utility%20(1).html" title="Retribuzioni Utility"></iframe>
+  <iframe id="app-frame" src="./Retribuzioni%20Utility%20(1).html" title="Retribuzioni Utility"></iframe>
   <script>
+    const frame = document.getElementById('app-frame');
+    const mobileStyles = `
+      @media (max-width: 700px) {
+        html, body { overflow-x: hidden !important; }
+        [style*="padding:28px 24px 64px"] { padding: 18px 12px 40px !important; align-items: stretch !important; }
+        [style*="max-width:1180px"] { max-width: 100% !important; }
+        header[style] { align-items: flex-start !important; gap: 12px !important; }
+        h1[style] { font-size: 23px !important; }
+        select { min-width: 0 !important; width: 100% !important; font-size: 16px !important; }
+        [style*="grid-template-columns:1.6fr 1fr 1.2fr"],
+        [style*="grid-template-columns:1.6fr 1fr"],
+        [style*="grid-template-columns:1.1fr 1fr"],
+        [style*="grid-template-columns:1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+        [style*="padding:22px 26px"],
+        [style*="padding:22px 24px"] { padding: 18px !important; }
+        [style*="font-size:46px"] { font-size: 38px !important; }
+        [style*="grid-template-columns:minmax(94px,1.05fr)"] { min-width: 780px !important; }
+        [style*="border:1px solid #d8d4ca"][style*="overflow:hidden"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+        [style*="grid-template-columns:1fr 1.2fr 1fr"] { min-width: 520px !important; }
+        [style*="border:1px solid #e0ddd4"][style*="overflow:hidden"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+      }
+    `;
+
+    frame.addEventListener('load', () => {
+      let attempts = 0;
+      const applyMobileStyles = () => {
+        const doc = frame.contentDocument;
+        if (doc?.head && !doc.getElementById('mobile-layout')) {
+          const style = doc.createElement('style');
+          style.id = 'mobile-layout';
+          style.textContent = mobileStyles;
+          doc.head.appendChild(style);
+        }
+        if (++attempts < 50) setTimeout(applyMobileStyles, 100);
+      };
+      applyMobileStyles();
+    });
+
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
