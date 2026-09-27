@@ -1,8 +1,8 @@
-const CACHE = 'retribuzioni-utility-v5-20260927';
+const CACHE = 'retribuzioni-utility-v6-20260927';
 const APP_FILES = [
   './',
   './index.html',
-  './Retribuzioni%20Utility%20(1).html',
+  './Retribuzioni%20Utility%20(1).html?v=5',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
